@@ -5,3 +5,4 @@ linters:
   enable-all: true
   disable:
     - gochecknoglobals
+    - goerr113

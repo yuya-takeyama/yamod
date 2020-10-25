@@ -5,13 +5,15 @@ import (
 	"strings"
 )
 
-// Parse parses JSON Pointer string and returns JSONPointer struct
+var errMustStartWithSlash error = errors.New(`pointer must start with "/"`)
+
+// Parse parses JSON Pointer string and returns JSONPointer struct.
 func Parse(pointer string) (*JSONPointer, error) {
 	tokenStrs := strings.Split(pointer, "/")
-	var tokens []ReferenceToken
+	tokens := make([]ReferenceToken, len(tokenStrs)-1)
 
 	if tokenStrs[0] != "" {
-		return nil, errors.New(`pointer must start with "/"`)
+		return nil, errMustStartWithSlash
 	}
 
 	if len(tokenStrs) == 2 && tokenStrs[1] == "" {

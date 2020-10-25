@@ -9,13 +9,16 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Find returns YAML Node using JSON Pointer
+var errNodeNotFound error = errors.New("node not found")
+
+// Find returns YAML Node using JSON Pointer.
 func Find(doc *yaml.Node, ptr jsonpointer.JSONPointer) (*yaml.Node, error) {
 	if len(ptr.ReferenceTokens) == 0 {
 		return doc, nil
 	}
 
 	node := doc.Content[0]
+
 	return find(node, ptr.ReferenceTokens)
 }
 
@@ -26,13 +29,14 @@ func find(node *yaml.Node, refTokens []jsonpointer.ReferenceToken) (*yaml.Node, 
 		return findFromSequence(node, refTokens)
 	}
 
-	return nil, fmt.Errorf("Unsupported kind: %s", inspectKind(node.Kind))
+	return nil, fmt.Errorf("unsupported kind: %s", inspectKind(node.Kind))
 }
 
 func findFromMapping(doc *yaml.Node, refTokens []jsonpointer.ReferenceToken) (*yaml.Node, error) {
 	token := refTokens[0]
 	isKey := true
 	returnNext := false
+
 	for _, c := range doc.Content {
 		if isKey && c.Value == token.Reference {
 			returnNext = true
@@ -47,7 +51,7 @@ func findFromMapping(doc *yaml.Node, refTokens []jsonpointer.ReferenceToken) (*y
 		isKey = !isKey
 	}
 
-	return nil, errors.New("Node not found")
+	return nil, errNodeNotFound
 }
 
 func findFromSequence(doc *yaml.Node, refTokens []jsonpointer.ReferenceToken) (*yaml.Node, error) {
@@ -62,7 +66,7 @@ func findFromSequence(doc *yaml.Node, refTokens []jsonpointer.ReferenceToken) (*
 		}
 	}
 
-	return nil, errors.New("Node not found")
+	return nil, errNodeNotFound
 }
 
 func inspectKind(kind yaml.Kind) string {
@@ -77,7 +81,6 @@ func inspectKind(kind yaml.Kind) string {
 		return "Scalar"
 	case yaml.AliasNode:
 		return "Alias"
-
 	}
 
 	return "Unknown"
