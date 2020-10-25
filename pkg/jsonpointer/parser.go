@@ -34,9 +34,3 @@ func Parse(pointer string) (*JSONPointer, error) {
 func unescape(reference string) string {
 	return strings.ReplaceAll(strings.ReplaceAll(reference, "~0", "~"), "~1", "/")
 }
-
-
-
-
-
-
